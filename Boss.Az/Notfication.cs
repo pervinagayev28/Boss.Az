@@ -6,16 +6,28 @@ using System.Threading.Tasks;
 
 namespace Boss.Az
 {
-    internal class Notfication
+    public class Notfication
     {
         public string About { get; set; }
         public DateTime NodedDate { get; set; }
-        public string ByName { get; set; }
-        public Notfication(string About,string Byname)
+        public int By { get; set; }
+        public Notfication()
+        {
+            About = default;
+            NodedDate = default;
+            By = default;
+        }
+        public Notfication(string About,int By)
         {
             this.About = About;
-            this.ByName = Byname;
+            this.By = By;
             NodedDate = DateTime.Now;
+        }
+        public  void ShowNotfics()
+        {
+            Console.WriteLine($"About: {About}");
+            Console.WriteLine($"By Name: ");
+            Console.WriteLine($"Noded: {NodedDate.ToShortDateString()}");
         }
     }
 }
