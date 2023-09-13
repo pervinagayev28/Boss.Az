@@ -30,11 +30,6 @@ namespace Boss.Az
             Console.WriteLine("we have sent a verify code to your gmail");
             Console.Write("enter 6 number code: ");
             return int.Parse(Console.ReadLine());
-            foreach (var item in collection)
-            {
-
-            }
-
         }
     }
 }
