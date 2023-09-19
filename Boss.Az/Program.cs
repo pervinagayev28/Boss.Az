@@ -63,7 +63,6 @@ namespace Boss.Az
             var name = Console.ReadLine();
             Console.Write("enter your password: ");
             var password = Console.ReadLine();
-
             var jsonfile = File.ReadAllText("workers.json");
             var workers = JsonConvert.DeserializeObject<Worker[]>(jsonfile);
             foreach (var worker in workers)
