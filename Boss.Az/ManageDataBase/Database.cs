@@ -8,8 +8,7 @@ namespace Boss.Az.ManageDataBase
 {
     static class Database
     {
-        public static List<Notfication> EmployersNotfications = new List<Notfication>();
-        public static List<Notfication> WorkerNotfications = new List<Notfication>();
+        public static List<Notfication> Notfications = new List<Notfication>();
         public static List<Worker> Workers = new List<Worker>();
         public static List<Employer> Employers = new List<Employer>();
     }

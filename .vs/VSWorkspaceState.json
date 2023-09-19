@@ -1,7 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\Boss.Az",
+    "\\Boss.Az\\ManageDataBase"
   ],
-  "SelectedNode": "\\Boss.Az.sln",
   "PreviewInSolutionExplorer": false
 }
