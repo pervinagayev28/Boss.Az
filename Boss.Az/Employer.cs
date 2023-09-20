@@ -19,6 +19,7 @@ namespace Boss.Az
         public CvEmployer CvEmployer { get; set; }
         public Employer()
         {
+            Id = StaticId++;
             Notfications = new List<Notfication>();
             CvEmployer = new CvEmployer();
         }

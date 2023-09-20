@@ -40,7 +40,7 @@ namespace Boss.Az
                 foreach (string line in jsonContentW)
                     Database.Workers.Add(JsonSerializer.Deserialize<Worker>(line));
             }
-            if (File.Exists("Ewmployers.json"))
+            if (File.Exists("Employers.json"))
             {
                 jsonContentE = File.ReadAllLines("Employers.json");
                 foreach (string line in jsonContentE)
@@ -86,6 +86,7 @@ namespace Boss.Az
                     int temp = 1;
                     while (true)
                     {
+                        Console.Clear();
                         string[] choices = { "Notfications", "All Job Postings", "Filter Jobs", "Exit" };
                         ColorSettings(choices, temp);
                         var key = Console.ReadKey();
@@ -107,7 +108,8 @@ namespace Boss.Az
                                 if (temp == 1)
                                 {
                                     foreach (var notfic in worker.Notfications)
-                                        notfic.ShowNotfics();
+                                        notfic.ShowNotfics(1);
+                                Console.ReadLine();
                                 }
                                 else if (temp == 2)
                                     AllJobPostings(worker.Id);
@@ -143,6 +145,7 @@ namespace Boss.Az
                         em.Notfications.Add(new Notfication("request", Database.Workers.FirstOrDefault(w => w.Id == ById).Id, em.Id));
                         var JsonForm = JsonSerializer.Serialize(em.Notfications[em.Notfications.Count - 1]);
                         File.AppendAllText("NotficationsEmployer.json", JsonForm); return;
+                        FillData();
                     }
                 }
             }
@@ -165,6 +168,7 @@ namespace Boss.Az
                         em.Notfications.Add(new Notfication("request", Database.Workers.FirstOrDefault(w => w.Id == ById).Id, em.Id));
                         var JsonForm = JsonSerializer.Serialize(em.Notfications[em.Notfications.Count - 1]);
                         File.AppendAllText("NotficationsEmployer.json", JsonForm); return;
+                        FillData();
                     }
                 }
             }
@@ -179,7 +183,7 @@ namespace Boss.Az
             while (true)
             {
                 Console.Clear();
-                string[] choices = { "LokkEmployers", "LookWorkers","Exit" };
+                string[] choices = { "LokkEmployers", "LookWorkers", "Exit" };
                 ColorSettings(choices, start);
 
                 var key = Console.ReadKey();
@@ -206,6 +210,7 @@ namespace Boss.Az
                                 if (em.CvEmployer.WorkArea == JobKind)
                                     em.CvEmployer.ShowInfo();
                             }
+                            Console.ReadLine();
                         }
                         else if (start == 2)
                         {
@@ -215,6 +220,7 @@ namespace Boss.Az
                                 if (em.CvWorker.ProfessionKind == JobKind)
                                     em.CvWorker.showInfo();
                             }
+                            Console.ReadLine();
                         }
                         else
                             StartUp();
@@ -229,7 +235,7 @@ namespace Boss.Az
             while (true)
             {
                 Console.Clear();
-                string[] choices = { "LogIn", "Registration" ,"Exit"};
+                string[] choices = { "LogIn", "Registration", "Exit" };
                 ColorSettings(choices, start);
 
                 var key = Console.ReadKey();
@@ -264,7 +270,7 @@ namespace Boss.Az
             while (true)
             {
                 Console.Clear();
-                string[] arr = new[] { "prgramming", "IT", "Design" };
+                string[] arr = new[] { "Programming", "IT", "Design" };
                 ColorSettings(arr, temp);
                 var key = Console.ReadKey();
                 switch (key.Key)
@@ -289,20 +295,41 @@ namespace Boss.Az
         static public void RegstrationWorker()
         {
             Worker wk = new();
-            Console.Write("enter Name: ");
-            wk.Name = Console.ReadLine();
-            Console.Write("enter Surname: ");
-            wk.Surname = Console.ReadLine();
+        again:
+            try
+            {
+
+                Console.Write("enter Name: ");
+                wk.Name = Console.ReadLine();
+                Console.Write("enter Surname: ");
+                wk.Surname = Console.ReadLine();
+                Console.Write("work area\n: ");
+                wk.CvWorker.ProfessionKind = CommonJobs();
+                Console.Write("enter your work experince: ");
+                wk.CvWorker.WorkExperince = int.Parse(Console.ReadLine());
+                Console.WriteLine("wants amount: ");
+                wk.CvWorker.WantsAmount = int.Parse(Console.ReadLine());
+            }
+            catch (Exception)
+            {
+                Console.Clear();
+                goto again;
+            }
+        IncorrectGmail:
             Console.Write("enter gmail: ");
             wk.Gmail = Console.ReadLine();
-            Console.Write("work area\n: ");
-            wk.CvWorker.ProfessionKind = CommonJobs();
-            Console.Write("enter your work experince: ");
-            wk.CvWorker.WorkExperince = int.Parse(Console.ReadLine());
-            Console.WriteLine("wants amount: ");
-            wk.CvWorker.WantsAmount = int.Parse(Console.ReadLine());
+            if (!wk.Gmail.Contains("@gmail.com"))
+                goto IncorrectGmail;
+            IncorrectDate:
             Console.WriteLine("birthday: ");
-            wk.CvWorker.Birthdate = Convert.ToDateTime((Console.ReadLine()));
+            try
+            {
+                wk.CvWorker.Birthdate = Convert.ToDateTime((Console.ReadLine()));
+            }
+            catch (Exception)
+            {
+                goto IncorrectDate;
+            }
             Console.WriteLine("marital status 1/2: ");
             wk.CvWorker.MaritalStatus = int.Parse(Console.ReadLine());
             Console.WriteLine("Gender 1/2: ");
@@ -314,34 +341,66 @@ namespace Boss.Az
             do
             {
                 VerifyCode = Random.Shared.Next(111111, 999999);
-                result = SmtpServerConnection.GmailVerify(wk.Gmail, VerifyCode);
+                try
+                {
+                    result = SmtpServerConnection.GmailVerify(wk.Gmail, VerifyCode);
+                }
+                catch (Exception)
+                {
+                    goto IncorrectGmail;
+                }
                 Console.Clear();
             } while (VerifyCode != result);
             var JsonForm = JsonSerializer.Serialize(wk);
             File.AppendAllText("Workers.json", JsonForm);
+            FillData();
         }
         public static void RegstrationEmployer()
         {
             Employer em = new();
-            Console.Write("enter Company Name: ");
-            em.CompanyName = Console.ReadLine();
-            Console.Write("enter gmail: ");
-            em.Gmail = Console.ReadLine();
-            Console.Write("work area\n: ");
-            em.CvEmployer.WorkArea = CommonJobs();
-            Console.Write("enter period of experince: ");
-            em.CvEmployer.RequiredWorkExperience = int.Parse(Console.ReadLine());
-            Console.WriteLine("enter languages: ");
-            em.CvEmployer.RequiredLanguage = Console.ReadLine();
-            Console.WriteLine("enter password: ");
-            em.password = Console.ReadLine();
+        again:
+            try
+            {
+
+                Console.Write("enter Company Name: ");
+                em.CompanyName = Console.ReadLine();
+            IncorrectGmail:
+                Console.Write("enter gmail: ");
+                em.Gmail = Console.ReadLine();
+                if (!em.Gmail.Contains("@gmail.com"))
+                    goto IncorrectGmail;
+                Console.Write("work area\n: ");
+                em.CvEmployer.WorkArea = CommonJobs();
+                Console.Write("enter period of experince: ");
+                em.CvEmployer.RequiredWorkExperience = int.Parse(Console.ReadLine());
+                Console.WriteLine("enter languages: ");
+                em.CvEmployer.RequiredLanguage = Console.ReadLine();
+                Console.WriteLine("enter password: ");
+                em.password = Console.ReadLine();
+                Console.WriteLine("enter salary: ");
+                em.CvEmployer.Salary = int.Parse(Console.ReadLine());
+            }
+            catch (Exception)
+            {
+                Console.Clear();
+                goto again;
+            }
 
             int VerifyCode = Random.Shared.Next(111111, 999999);
-            int result = SmtpServerConnection.GmailVerify(em.Gmail, VerifyCode);
+            int result = 0;
+            try
+            {
+                result = SmtpServerConnection.GmailVerify(em.Gmail, VerifyCode);
+            }
+            catch (Exception)
+            {
+                goto again;
+            }
             if (result != VerifyCode)
                 throw new Exception("incorret verify code");
             var JsonForm = JsonSerializer.Serialize(em);
             File.AppendAllText("Employers.json", JsonForm);
+            FillData();
         }
         static void EmployerFunc()
         {
@@ -349,7 +408,7 @@ namespace Boss.Az
             while (true)
             {
                 Console.Clear();
-                string[] choices = { "LogIn", "Registration","Exit" };
+                string[] choices = { "LogIn", "Registration", "Exit" };
                 ColorSettings(choices, start);
 
                 var key = Console.ReadKey();
@@ -394,6 +453,7 @@ namespace Boss.Az
                         worker.Notfications.Add(new Notfication("invited", ById, worker.Id));
                         var JsonForm = JsonSerializer.Serialize(worker.Notfications[worker.Notfications.Count - 1]);
                         File.AppendAllText("NotficationsWorker.json", JsonForm); return;
+                        FillData();
                     }
                 }
             }
@@ -413,6 +473,7 @@ namespace Boss.Az
                     int temp = 1;
                     while (true)
                     {
+                        Console.Clear();
                         string[] choices = { "Notfications", "All Job Seekers", "Filter Job Seekers", "Exit" };
                         ColorSettings(choices, temp);
                         var key = Console.ReadKey();
@@ -434,7 +495,8 @@ namespace Boss.Az
                                 if (temp == 1)
                                 {
                                     foreach (var notfic in em.Notfications)
-                                        notfic.ShowNotfics();
+                                        notfic.ShowNotfics(2);
+                                    Console.ReadLine();
                                 }
                                 else if (temp == 2)
                                     AllJobSeekers(em.Id);
@@ -471,6 +533,7 @@ namespace Boss.Az
                         worker.Notfications.Add(new Notfication("invited", ById, worker.Id));
                         var JsonForm = JsonSerializer.Serialize(worker.Notfications[worker.Notfications.Count - 1]);
                         File.AppendAllText("NotficationsWorker.json", JsonForm); return;
+                        FillData();
                     }
                 }
             }

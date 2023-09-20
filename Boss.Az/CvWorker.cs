@@ -35,7 +35,7 @@ namespace Boss.Az
         public void showInfo()
         {
             Console.WriteLine("Id: " + Id);
-            Console.WriteLine("Birth date: " + Birthdate.ToShortTimeString());
+            Console.WriteLine("Birth date: " + Birthdate.ToString("dd MM yyyy"));
             Console.WriteLine(Gender == 1 ? "Gender: Male" : "Gender: Female");
             Console.WriteLine(MaritalStatus == 1 ? "marital status: married" : "marital status: single");
             Console.WriteLine("work experince: " + WorkExperince);

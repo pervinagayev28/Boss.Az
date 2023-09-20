@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Boss.Az.ManageDataBase;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,10 +27,11 @@ namespace Boss.Az
             this.By = By;
             NodedDate = DateTime.Now;
         }
-        public void ShowNotfics()
+        public void ShowNotfics(int check)
         {
             Console.WriteLine($"About: {About}");
-            Console.WriteLine($"By Name: ");
+            Console.WriteLine("By Name: " +
+                (check == 1 ? Database.Employers.FirstOrDefault(w => w.Id == By).CompanyName : Database.Workers.FirstOrDefault(e => e.Id == By).Name));
             Console.WriteLine($"Noded: {NodedDate.ToShortDateString()}");
         }
     }
