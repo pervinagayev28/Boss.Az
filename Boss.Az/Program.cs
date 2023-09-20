@@ -30,30 +30,48 @@ namespace Boss.Az
 
         static void FillData()
         {
-            string?[] jsonContentNot = default;
+            string?[] jsonContentNotE = default;
+            string?[] jsonContentNotW = default;
             string?[] jsonContentW = default;
             string?[] jsonContentE = default;
             if (File.Exists("Workers.json"))
             {
                 jsonContentW = File.ReadAllLines("Workers.json");
                 foreach (string line in jsonContentW)
-                    Database.Workers.Add(JsonSerializer.Serialize<Worker>(line))
+                    Database.Workers.Add(JsonSerializer.Deserialize<Worker>(line));
             }
             if (File.Exists("Ewmployers.json"))
             {
                 jsonContentE = File.ReadAllLines("Employers.json");
-                foreach (string line in jsonContentWE
-                    Database.Employers.Add(JsonSerializer.Serialize<Employer>(line))
+                foreach (string line in jsonContentE)
+                    Database.Employers.Add(JsonSerializer.Deserialize<Employer>(line));
             }
-            if (File.Exists("Notfications.json"))
+            if (File.Exists("NotficationsEmployer.json"))
             {
-                jsonContentNotfications = File.ReadAllLines("Notfications.json");
-                foreach (string line in jsonContentNotfications)
+                jsonContentNotE = File.ReadAllLines("NotficationsEmployer.json");
+                foreach (string line in jsonContentNotE)
                 {
-                    var data = JsonSerializer.de
+                    var notfic = JsonSerializer.Deserialize<Notfication>(line);
+                    foreach (var em in Database.Employers)
+                    {
+                        if (em.Id == notfic.Id)
+                            em.Notfications.Add(notfic);
+                    }
                 }
             }
-
+            if (File.Exists("NotficationsWorker.json"))
+            {
+                jsonContentNotW = File.ReadAllLines("NotficationsWorker.json");
+                foreach (string line in jsonContentNotW)
+                {
+                    var notfic = JsonSerializer.Deserialize<Notfication>(line);
+                    foreach (var worker in Database.Workers)
+                    {
+                        if (worker.Id == notfic.Id)
+                            worker.Notfications.Add(notfic);
+                    }
+                }
+            }
         }
         static public void LogInWorker()
         {
@@ -61,9 +79,7 @@ namespace Boss.Az
             var name = Console.ReadLine();
             Console.Write("enter your password: ");
             var password = Console.ReadLine();
-            var jsonfile = File.ReadAllText("workers.json");
-            var workers = JsonConvert.DeserializeObject<Worker[]>(jsonfile);
-            foreach (var worker in workers)
+            foreach (var worker in Database.Workers)
             {
                 if (worker.Name == name && worker.Paswword == password)
                 {
@@ -124,9 +140,9 @@ namespace Boss.Az
                 {
                     if (em.CvEmployer.Id == IdPosting)
                     {
-                        em.Notfications.Add(new Notfication("request", Database.Workers.FirstOrDefault(w => w.Id == ById).Id), em.Id);
-                        var JsonForm = JsonConvert.SerializeObject(em.Notfications[em.Notfications.Count - 1]);
-                        File.AppendAllText("Notfications.json", JsonForm); return;
+                        em.Notfications.Add(new Notfication("request", Database.Workers.FirstOrDefault(w => w.Id == ById).Id, em.Id));
+                        var JsonForm = JsonSerializer.Serialize(em.Notfications[em.Notfications.Count - 1]);
+                        File.AppendAllText("NotficationsEmployer.json", JsonForm); return;
                     }
                 }
             }
@@ -146,9 +162,9 @@ namespace Boss.Az
                 {
                     if (em.CvEmployer.Id == IdPosting)
                     {
-                        em.Notfications.Add(new Notfication("request", Database.Workers.FirstOrDefault(w => w.Id == ById).Id), em.Id);
-                        var JsonForm = JsonConvert.SerializeObject(em.Notfications[em.Notfications.Count - 1]);
-                        File.AppendAllText("Notfications.json", JsonForm); return;
+                        em.Notfications.Add(new Notfication("request", Database.Workers.FirstOrDefault(w => w.Id == ById).Id, em.Id));
+                        var JsonForm = JsonSerializer.Serialize(em.Notfications[em.Notfications.Count - 1]);
+                        File.AppendAllText("NotficationsEmployer.json", JsonForm); return;
                     }
                 }
             }
@@ -159,7 +175,52 @@ namespace Boss.Az
 
         static void GuestFunc()
         {
+            int start = 1;
+            while (true)
+            {
+                Console.Clear();
+                string[] choices = { "LokkEmployers", "LookWorkers","Exit" };
+                ColorSettings(choices, start);
 
+                var key = Console.ReadKey();
+                switch (key.Key)
+                {
+                    case ConsoleKey.UpArrow:
+                        if (start == 1)
+                            start = 3;
+                        else
+                            start--;
+                        break;
+                    case ConsoleKey.DownArrow:
+                        if (start == 3)
+                            start = 1;
+                        else
+                            start++;
+                        break;
+                    case ConsoleKey.Enter:
+                        if (start == 1)
+                        {
+                            string JobKind = CommonJobs();
+                            foreach (var em in Database.Employers)
+                            {
+                                if (em.CvEmployer.WorkArea == JobKind)
+                                    em.CvEmployer.ShowInfo();
+                            }
+                        }
+                        else if (start == 2)
+                        {
+                            string JobKind = CommonJobs();
+                            foreach (var em in Database.Workers)
+                            {
+                                if (em.CvWorker.ProfessionKind == JobKind)
+                                    em.CvWorker.showInfo();
+                            }
+                        }
+                        else
+                            StartUp();
+                        break;
+                }
+            }
 
         }
         static void WorkerFunc()
@@ -168,7 +229,7 @@ namespace Boss.Az
             while (true)
             {
                 Console.Clear();
-                string[] choices = { "LogIn", "Registration" };
+                string[] choices = { "LogIn", "Registration" ,"Exit"};
                 ColorSettings(choices, start);
 
                 var key = Console.ReadKey();
@@ -176,21 +237,23 @@ namespace Boss.Az
                 {
                     case ConsoleKey.UpArrow:
                         if (start == 1)
-                            start = 2;
+                            start = 3;
                         else
-                            start = 1;
+                            start--;
                         break;
                     case ConsoleKey.DownArrow:
-                        if (start == 1)
-                            start = 2;
-                        else
+                        if (start == 3)
                             start = 1;
+                        else
+                            start++;
                         break;
                     case ConsoleKey.Enter:
                         if (start == 1)
                             LogInWorker();
                         else if (start == 2)
                             RegstrationWorker();
+                        else
+                            StartUp();
                         break;
                 }
             }
@@ -254,7 +317,7 @@ namespace Boss.Az
                 result = SmtpServerConnection.GmailVerify(wk.Gmail, VerifyCode);
                 Console.Clear();
             } while (VerifyCode != result);
-            var JsonForm = JsonConvert.SerializeObject(wk);
+            var JsonForm = JsonSerializer.Serialize(wk);
             File.AppendAllText("Workers.json", JsonForm);
         }
         public static void RegstrationEmployer()
@@ -277,7 +340,7 @@ namespace Boss.Az
             int result = SmtpServerConnection.GmailVerify(em.Gmail, VerifyCode);
             if (result != VerifyCode)
                 throw new Exception("incorret verify code");
-            var JsonForm = JsonConvert.SerializeObject(em);
+            var JsonForm = JsonSerializer.Serialize(em);
             File.AppendAllText("Employers.json", JsonForm);
         }
         static void EmployerFunc()
@@ -286,7 +349,7 @@ namespace Boss.Az
             while (true)
             {
                 Console.Clear();
-                string[] choices = { "LogIn", "Registration" };
+                string[] choices = { "LogIn", "Registration","Exit" };
                 ColorSettings(choices, start);
 
                 var key = Console.ReadKey();
@@ -294,21 +357,23 @@ namespace Boss.Az
                 {
                     case ConsoleKey.UpArrow:
                         if (start == 1)
-                            start = 2;
+                            start = 3;
                         else
-                            start = 1;
+                            start--;
                         break;
                     case ConsoleKey.DownArrow:
-                        if (start == 1)
-                            start = 2;
-                        else
+                        if (start == 3)
                             start = 1;
+                        else
+                            start++;
                         break;
                     case ConsoleKey.Enter:
                         if (start == 1)
                             LogInEmployer();
                         else if (start == 2)
                             RegstrationEmployer();
+                        else
+                            StartUp();
                         break;
                 }
             }
@@ -316,7 +381,7 @@ namespace Boss.Az
         static void AllJobSeekers(int ById)
         {
             foreach (var worker in Database.Workers)
-                em.CvEmployer.ShowInfo();
+                worker.CvWorker.showInfo();
             Console.Write("1 - invited\n2 - to go back");
             if (int.Parse(Console.ReadLine()) == 1)
             {
@@ -324,18 +389,18 @@ namespace Boss.Az
                 int IdPosting = int.Parse(Console.ReadLine());
                 foreach (var worker in Database.Workers)
                 {
-                    if (worker.CvEmployer.Id == IdPosting)
+                    if (worker.CvWorker.Id == IdPosting)
                     {
-                        worker.Notfications.Add(new Notfication("invited", ById, worker.Id);
-                        var JsonForm = JsonConvert.SerializeObject(worker.Notfications[em.Notfications.Count - 1]);
-                        File.AppendAllText("Notfications.json", JsonForm); return;
+                        worker.Notfications.Add(new Notfication("invited", ById, worker.Id));
+                        var JsonForm = JsonSerializer.Serialize(worker.Notfications[worker.Notfications.Count - 1]);
+                        File.AppendAllText("NotficationsWorker.json", JsonForm); return;
                     }
                 }
             }
             else
                 StartUp();
         }
-        static void LogInEmploer()
+        static void LogInEmployer()
         {
             Console.Write("enter your name: ");
             var name = Console.ReadLine();
@@ -401,11 +466,11 @@ namespace Boss.Az
                 int IdPosting = int.Parse(Console.ReadLine());
                 foreach (var worker in Database.Workers)
                 {
-                    if (worker.CvEmployer.Id == IdPosting)
+                    if (worker.CvWorker.Id == IdPosting)
                     {
-                        worker.Notfications.Add(new Notfication("invited", ById, worker.Id);
-                        var JsonForm = JsonConvert.SerializeObject(worker.Notfications[em.Notfications.Count - 1]);
-                        File.AppendAllText("Notfications.json", JsonForm); return;
+                        worker.Notfications.Add(new Notfication("invited", ById, worker.Id));
+                        var JsonForm = JsonSerializer.Serialize(worker.Notfications[worker.Notfications.Count - 1]);
+                        File.AppendAllText("NotficationsWorker.json", JsonForm); return;
                     }
                 }
             }
@@ -417,6 +482,7 @@ namespace Boss.Az
             int start = 1;
             while (true)
             {
+                Console.Clear();
                 string[] choices = { "Guest", "Worker", "Employer" };
                 ColorSettings(choices, start);
                 var key = Console.ReadKey();

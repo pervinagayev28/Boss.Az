@@ -58,11 +58,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Agaye_jz58\\Source\\Repos\\Boss.az\\Boss.Az\\Boss.Az.csproj",
+      "projectUniqueName": "C:\\Users\\Agaye_jz58\\Desktop\\Boss.Az\\Boss.Az\\Boss.Az.csproj",
       "projectName": "Boss.Az",
-      "projectPath": "C:\\Users\\Agaye_jz58\\Source\\Repos\\Boss.az\\Boss.Az\\Boss.Az.csproj",
+      "projectPath": "C:\\Users\\Agaye_jz58\\Desktop\\Boss.Az\\Boss.Az\\Boss.Az.csproj",
       "packagesPath": "C:\\Users\\Agaye_jz58\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Agaye_jz58\\Source\\Repos\\Boss.az\\Boss.Az\\obj\\",
+      "outputPath": "C:\\Users\\Agaye_jz58\\Desktop\\Boss.Az\\Boss.Az\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
