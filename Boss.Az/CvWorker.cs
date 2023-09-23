@@ -41,9 +41,10 @@ namespace Boss.Az
             Console.WriteLine("work experince: " + WorkExperince);
             Console.WriteLine("Profession: " + ProfessionKind);
             Console.WriteLine("wants amount: " + WantsAmount);
+            Console.WriteLine();
         }
 
-        private static int StaticId { get; set; }
+        public static int StaticId { get; set; } = 1;
         public int Id { get; set; }
         public DateTime Birthdate { get; set; }
         public int Gender { get; set; }

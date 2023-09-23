@@ -7,18 +7,23 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Text.Json;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace Boss.Az
 {
     internal class Worker
     {
-        private static int StaticId { get; set; } = 1;
+        public static int StaticId { get; set; } = 1;
         public int Id { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
         public string Gmail { get; set; }
         public string Paswword { get; set; }
-
+        public void showInfo()
+        {
+            Console.WriteLine($"Name: {Name}");
+            Console.WriteLine($"Surname: {Surname}");
+        }
         public List<Notfication> Notfications { get; set; }
         public CvWorker CvWorker { get; set; }
         public Worker()

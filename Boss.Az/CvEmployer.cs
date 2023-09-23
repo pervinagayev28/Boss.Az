@@ -20,6 +20,8 @@ namespace Boss.Az
             Console.WriteLine("work experince: "+RequiredWorkExperience);
             Console.WriteLine("Required Language: "+RequiredLanguage);
             Console.WriteLine("Salary: "+Salary);
+            Console.WriteLine();
+
         }
         public CvEmployer()
         {

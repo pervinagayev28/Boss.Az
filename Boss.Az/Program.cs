@@ -14,9 +14,12 @@ namespace Boss.Az
             {
                 if (i == start - 1)
                 {
-                    Console.BackgroundColor = ConsoleColor.Green;
+                    Console.BackgroundColor = ConsoleColor.White;
+                    Console.ForegroundColor = ConsoleColor.Black;
                     Console.WriteLine(choices[i]);
-                    Console.BackgroundColor = default;
+                    Console.BackgroundColor = ConsoleColor.Black;
+
+                    Console.ForegroundColor = ConsoleColor.White;
                 }
                 else
                     Console.WriteLine(choices[i]);
@@ -27,7 +30,21 @@ namespace Boss.Az
             FillData();
             StartUp();
         }
+        static void Design()
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            string bossAzAsciiArt = @"
+███████╗██╗   ██╗██╗ ██████╗███████╗    ██╗███████╗      ██╗    ██╗
+██╔════╝██║   ██║██║██╔════╝██╔════╝    ██║██╔════╝     ██╔╝   ██╔╝
+███████╗██║   ██║██║██║     █████╗      ██║███████╗    ██╔╝   ██╔╝ 
+╚════██║██║   ██║██║██║     ██╔══╝      ██║╚════██║   ██╔╝   ██╔╝  
+███████║╚██████╔╝██║╚██████╗███████╗    ██║███████║  ██╔╝   ██╔╝   
+╚══════╝ ╚═════╝ ╚═╝ ╚═════╝╚══════╝    ╚═╝╚══════╝  ╚═╝   ╚═╝    
+";
+            Console.WriteLine(bossAzAsciiArt);
+            Console.ForegroundColor = ConsoleColor.White;
 
+        }
         static void FillData()
         {
             string?[] jsonContentNotE = default;
@@ -72,6 +89,20 @@ namespace Boss.Az
                     }
                 }
             }
+
+            if (Database.Workers.Count != 0)
+            {
+                Worker.StaticId = Database.Workers.Count + 1;
+                CvWorker.StaticId = Worker.StaticId;
+            }
+            if (Database.Employers.Count != 0)
+            {
+                Employer.StaticId = Database.Employers.Count + 1;
+                Employer.StaticIdCv = Employer.StaticId;
+            }
+
+
+
         }
         static public void LogInWorker()
         {
@@ -86,7 +117,7 @@ namespace Boss.Az
                     int temp = 1;
                     while (true)
                     {
-                        Console.Clear();
+                        Console.Clear(); Design();
                         string[] choices = { "Notfications", "All Job Postings", "Filter Jobs", "Exit" };
                         ColorSettings(choices, temp);
                         var key = Console.ReadKey();
@@ -109,7 +140,7 @@ namespace Boss.Az
                                 {
                                     foreach (var notfic in worker.Notfications)
                                         notfic.ShowNotfics(1);
-                                Console.ReadLine();
+                                    Console.ReadLine();
                                 }
                                 else if (temp == 2)
                                     AllJobPostings(worker.Id);
@@ -131,7 +162,10 @@ namespace Boss.Az
             foreach (var em in Database.Employers)
             {
                 if (em.CvEmployer.WorkArea == profession)
+                {
+                    em.showInfo();
                     em.CvEmployer.ShowInfo();
+                }
             }
             Console.Write("1 - request\n2 - to go back");
             if (int.Parse(Console.ReadLine()) == 1)
@@ -155,7 +189,10 @@ namespace Boss.Az
         static void AllJobPostings(int ById)
         {
             foreach (var em in Database.Employers)
+            {
+                em.showInfo();
                 em.CvEmployer.ShowInfo();
+            }
             Console.Write("1 - request\n2 - to go back");
             if (int.Parse(Console.ReadLine()) == 1)
             {
@@ -182,7 +219,7 @@ namespace Boss.Az
             int start = 1;
             while (true)
             {
-                Console.Clear();
+                Console.Clear(); Design();
                 string[] choices = { "LokkEmployers", "LookWorkers", "Exit" };
                 ColorSettings(choices, start);
 
@@ -208,17 +245,23 @@ namespace Boss.Az
                             foreach (var em in Database.Employers)
                             {
                                 if (em.CvEmployer.WorkArea == JobKind)
+                                {
+                                    em.showInfo();
                                     em.CvEmployer.ShowInfo();
+                                }
                             }
                             Console.ReadLine();
                         }
                         else if (start == 2)
                         {
                             string JobKind = CommonJobs();
-                            foreach (var em in Database.Workers)
+                            foreach (var worker in Database.Workers)
                             {
-                                if (em.CvWorker.ProfessionKind == JobKind)
-                                    em.CvWorker.showInfo();
+                                if (worker.CvWorker.ProfessionKind == JobKind)
+                                {
+                                    worker.showInfo();
+                                    worker.CvWorker.showInfo();
+                                }
                             }
                             Console.ReadLine();
                         }
@@ -234,7 +277,7 @@ namespace Boss.Az
             int start = 1;
             while (true)
             {
-                Console.Clear();
+                Console.Clear(); Design();
                 string[] choices = { "LogIn", "Registration", "Exit" };
                 ColorSettings(choices, start);
 
@@ -270,6 +313,7 @@ namespace Boss.Az
             while (true)
             {
                 Console.Clear();
+                Design();
                 string[] arr = new[] { "Programming", "IT", "Design" };
                 ColorSettings(arr, temp);
                 var key = Console.ReadKey();
@@ -440,7 +484,10 @@ namespace Boss.Az
         static void AllJobSeekers(int ById)
         {
             foreach (var worker in Database.Workers)
+            {
+                worker.showInfo();
                 worker.CvWorker.showInfo();
+            }
             Console.Write("1 - invited\n2 - to go back");
             if (int.Parse(Console.ReadLine()) == 1)
             {
@@ -473,7 +520,7 @@ namespace Boss.Az
                     int temp = 1;
                     while (true)
                     {
-                        Console.Clear();
+                        Console.Clear(); Design();
                         string[] choices = { "Notfications", "All Job Seekers", "Filter Job Seekers", "Exit" };
                         ColorSettings(choices, temp);
                         var key = Console.ReadKey();
@@ -519,7 +566,10 @@ namespace Boss.Az
             foreach (var worker in Database.Workers)
             {
                 if (worker.CvWorker.ProfessionKind == profession)
+                {
+                    worker.showInfo();
                     worker.CvWorker.showInfo();
+                }
             }
             Console.Write("1 - invited\n2 - to go back");
             if (int.Parse(Console.ReadLine()) == 1)
@@ -546,6 +596,7 @@ namespace Boss.Az
             while (true)
             {
                 Console.Clear();
+                Design();
                 string[] choices = { "Guest", "Worker", "Employer" };
                 ColorSettings(choices, start);
                 var key = Console.ReadKey();

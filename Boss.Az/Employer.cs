@@ -8,7 +8,11 @@ namespace Boss.Az
 {
     internal class Employer
     {
-        private static int StaticId { get; set; } = 1;
+        public void showInfo()
+        {
+            Console.WriteLine("company name: "+CompanyName);
+        }
+        public static int StaticId { get; set; } = 1;
         public static int StaticIdCv { get; set; } = 1;
         public int Id { get; set; }
         public string Gmail { get; set; }
