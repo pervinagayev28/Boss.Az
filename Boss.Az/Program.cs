@@ -8,7 +8,6 @@ namespace Boss.Az
     internal class Program
     {
         static bool ColorTemp = true;
-        private static object console;
 
         static void ColorSettings(string[] choices, int start)
         {
@@ -49,70 +48,32 @@ namespace Boss.Az
         }
         static void FillData()
         {
-            string?[] jsonContentNotE = default;
-            string?[] jsonContentNotW = default;
-            string?[] jsonContentW = default;
-            string?[] jsonContentE = default;
-            string?[] jsonContentCvE = default;
-            string?[] jsonContentCvW = default;
+            string? jsonContentNotE = default;
+            string? jsonContentNotW = default;
+            string? jsonContentW = default;
+            string? jsonContentE = default;
+
             if (File.Exists("Workers.json"))
             {
-                jsonContentW = File.ReadAllLines("Workers.json");
-                foreach (string line in jsonContentW)
-                    Database.Workers.Add(JsonSerializer.Deserialize<Worker>(line));
-            }
-            if (File.Exists("CvWorker.json"))
-            {
-                jsonContentW = File.ReadAllLines("CvWorker.json");
-                foreach (string line in jsonContentW)
-                    Database.Workers.Add(JsonSerializer.Deserialize<Worker>(line));
-            }
-            if (File.Exists("Employers.json"))
-            {
-                jsonContentE = File.ReadAllLines("Employers.json");
-                foreach (string line in jsonContentE)
-                    Database.Employers.Add(JsonSerializer.Deserialize<Employer>(line));
-            }
-            if (File.Exists("NotficationsEmployer.json"))
-            {
-                jsonContentNotE = File.ReadAllLines("NotficationsEmployer.json");
-                foreach (string line in jsonContentNotE)
-                {
-                    var notfic = JsonSerializer.Deserialize<Notfication>(line);
-                    foreach (var em in Database.Employers)
-                    {
-                        if (em.Id == notfic.Id)
-                            em.Notfications.Add(notfic);
-                    }
-                }
-            }
-            if (File.Exists("NotficationsWorker.json"))
-            {
-                jsonContentNotW = File.ReadAllLines("NotficationsWorker.json");
-                foreach (string line in jsonContentNotW)
-                {
-                    var notfic = JsonSerializer.Deserialize<Notfication>(line);
-                    foreach (var worker in Database.Workers)
-                    {
-                        if (worker.Id == notfic.Id)
-                            worker.Notfications.Add(notfic);
-                    }
-                }
+                jsonContentW = File.ReadAllText("Workers.json");
+                Database.Workers = JsonSerializer.Deserialize<List<Worker>>(jsonContentW);
             }
 
+            if (File.Exists("Employers.json"))
+            {
+                jsonContentE = File.ReadAllText("Employers.json");
+                Database.Employers = (JsonSerializer.Deserialize<List<Employer>>(jsonContentE));
+            }
             if (Database.Workers.Count != 0)
             {
                 Worker.StaticId = Database.Workers.Count + 1;
-                CvWorker.StaticId = Worker.StaticId;
+                CvWorker.StaticId = Database.Workers[Database.Workers.Count - 1].CvWorker.Count;
             }
             if (Database.Employers.Count != 0)
             {
                 Employer.StaticId = Database.Employers.Count + 1;
-                Employer.StaticIdCv = Employer.StaticId;
+                CvEmployer.StaticIdCv = Database.Employers[Database.Employers.Count - 1].CvEmployer.Count;
             }
-
-
-
         }
         static public void LogInWorker()
         {
@@ -177,12 +138,15 @@ namespace Boss.Az
         static void FilteredJobs(int ById)
         {
             string profession = CommonJobs();
-            foreach (var em in Database.Employers)
+            foreach (var emcv in Database.Employers)
             {
-                if (em.CvEmployer.WorkArea == profession)
+                foreach (var em in emcv.CvEmployer)
                 {
-                    em.showInfo();
-                    em.CvEmployer.ShowInfo();
+                    if (em.WorkArea == profession)
+                    {
+                        emcv.showInfo();
+                        em.ShowInfo();
+                    }
                 }
             }
             Console.Write("1 - request\n2 - to go back");
@@ -190,14 +154,17 @@ namespace Boss.Az
             {
                 Console.WriteLine("enter Id of Posting");
                 int IdPosting = int.Parse(Console.ReadLine());
-                foreach (var em in Database.Employers)
+                foreach (var emcv in Database.Employers)
                 {
-                    if (em.CvEmployer.Id == IdPosting)
+                    foreach (var em in emcv.CvEmployer)
                     {
-                        em.Notfications.Add(new Notfication("request", Database.Workers.FirstOrDefault(w => w.Id == ById).Id, em.Id));
-                        var JsonForm = JsonSerializer.Serialize(em.Notfications[em.Notfications.Count - 1]);
-                        File.AppendAllText("NotficationsEmployer.json", JsonForm); return;
-                        FillData();
+
+                        if (em.Id == IdPosting)
+                        {
+                            emcv.Notfications.Add(new Notfication("request", Database.Workers.FirstOrDefault(w => w.Id == ById).Id, em.Id));
+                            File.WriteAllText("Workers.json", JsonSerializer.Serialize(Database.Employers));
+                            FillData();
+                        }
                     }
                 }
             }
@@ -206,23 +173,26 @@ namespace Boss.Az
         }
         static void AllJobPostings(int ById)
         {
-            foreach (var em in Database.Employers)
+            foreach (var emcv in Database.Employers)
             {
-                em.showInfo();
-                em.CvEmployer.ShowInfo();
+                foreach (var em in emcv.CvEmployer)
+                {
+                    emcv.showInfo();
+                    em.ShowInfo();
+                }
             }
             Console.Write("1 - request\n2 - to go back");
             if (int.Parse(Console.ReadLine()) == 1)
             {
                 Console.WriteLine("enter Id of Posting");
                 int IdPosting = int.Parse(Console.ReadLine());
-                foreach (var em in Database.Employers)
+                foreach (var emcv in Database.Employers)
                 {
-                    if (em.CvEmployer.Id == IdPosting)
+                    foreach (var em in emcv.CvEmployer)
                     {
-                        em.Notfications.Add(new Notfication("request", Database.Workers.FirstOrDefault(w => w.Id == ById).Id, em.Id));
-                        var JsonForm = JsonSerializer.Serialize(em.Notfications[em.Notfications.Count - 1]);
-                        File.AppendAllText("NotficationsEmployer.json", JsonForm); return;
+                        emcv.Notfications.Add(new Notfication("request", Database.Workers.FirstOrDefault(w => w.Id == ById).Id, em.Id));
+                        var JsonForm = JsonSerializer.Serialize(emcv.Notfications[emcv.Notfications.Count - 1]);
+                        File.WriteAllText("Workers.json", JsonSerializer.Serialize(Database.Employers));
                         FillData();
                     }
                 }
@@ -260,12 +230,15 @@ namespace Boss.Az
                         if (start == 1)
                         {
                             string JobKind = CommonJobs();
-                            foreach (var em in Database.Employers)
+                            foreach (var emcv in Database.Employers)
                             {
-                                if (em.CvEmployer.WorkArea == JobKind)
+                                foreach (var em in emcv.CvEmployer)
                                 {
-                                    em.showInfo();
-                                    em.CvEmployer.ShowInfo();
+                                    if (em.WorkArea == JobKind)
+                                    {
+                                        emcv.showInfo();
+                                        em.ShowInfo();
+                                    }
                                 }
                             }
                             Console.ReadLine();
@@ -273,12 +246,15 @@ namespace Boss.Az
                         else if (start == 2)
                         {
                             string JobKind = CommonJobs();
-                            foreach (var worker in Database.Workers)
+                            foreach (var workers in Database.Workers)
                             {
-                                if (worker.CvWorker.ProfessionKind == JobKind)
+                                foreach (var worker in workers.CvWorker)
                                 {
-                                    worker.showInfo();
-                                    worker.CvWorker.showInfo();
+                                    if (worker.ProfessionKind == JobKind)
+                                    {
+                                        workers.showInfo();
+                                        worker.showInfo();
+                                    }
                                 }
                             }
                             Console.ReadLine();
@@ -430,8 +406,9 @@ namespace Boss.Az
             }
             Console.WriteLine("enter password: ");
             wk.Paswword = Console.ReadLine();
-            var JsonForm = JsonSerializer.Serialize(wk);
-            File.AppendAllText("Workers.json", JsonForm);
+            Database.Workers.Add(wk);
+            var JsonForm = JsonSerializer.Serialize(Database.Workers);
+            File.WriteAllText("Workers.json", JsonForm);
             FillData();
         }
         static void CreatCvEmployer(int Id)
@@ -456,14 +433,14 @@ namespace Boss.Az
             try
             {
                 cv.Salary = int.Parse(Console.ReadLine());
-
             }
             catch (Exception)
             {
                 goto IncorrectSalary;
             }
-            var jsonfile = JsonSerializer.Serialize(cv);
-            File.AppendAllText("CvEmployer.json", jsonfile);
+            Database.Employers.FirstOrDefault(e => e.Id == Id).CvEmployer.Add(cv);
+            File.WriteAllText("Workers.json", JsonSerializer.Serialize(Database.Employers));
+
             FillData();
         }
 
@@ -500,8 +477,9 @@ namespace Boss.Az
             }
             Console.WriteLine("enter password: ");
             em.password = Console.ReadLine();
-            var JsonForm = JsonSerializer.Serialize(em);
-            File.AppendAllText("Employers.json", JsonForm);
+            Database.Employers.Add(em);
+            var JsonForm = JsonSerializer.Serialize(Database.Employers);
+            File.WriteAllText("Employers.json", JsonForm);
             FillData();
         }
         static void EmployerFunc()
@@ -541,24 +519,31 @@ namespace Boss.Az
         }
         static void AllJobSeekers(int ById)
         {
-            foreach (var worker in Database.Workers)
+            foreach (var workers in Database.Workers)
             {
-                worker.showInfo();
-                worker.CvWorker.showInfo();
+                foreach (var worker in workers.CvWorker)
+                {
+
+                    workers.showInfo();
+                    worker.showInfo();
+                }
             }
             Console.Write("1 - invited\n2 - to go back");
             if (int.Parse(Console.ReadLine()) == 1)
             {
                 Console.WriteLine("enter Id of cv");
                 int IdPosting = int.Parse(Console.ReadLine());
-                foreach (var worker in Database.Workers)
+                foreach (var workers in Database.Workers)
                 {
-                    if (worker.CvWorker.Id == IdPosting)
+                    foreach (var worker in workers.CvWorker)
                     {
-                        worker.Notfications.Add(new Notfication("invited", ById, worker.Id));
-                        var JsonForm = JsonSerializer.Serialize(worker.Notfications[worker.Notfications.Count - 1]);
-                        File.AppendAllText("NotficationsWorker.json", JsonForm); return;
-                        FillData();
+                        if (worker.Id == IdPosting)
+                        {
+                            workers.Notfications.Add(new Notfication("invited", ById, worker.Id));
+                            var JsonForm = JsonSerializer.Serialize(Database.Workers);
+                            File.WriteAllText("Workers.json", JsonForm);
+                            FillData();
+                        }
                     }
                 }
             }
@@ -618,12 +603,16 @@ namespace Boss.Az
         static void FilteredJobSeekers(int ById)
         {
             string profession = CommonJobs();
-            foreach (var worker in Database.Workers)
+            foreach (var workers in Database.Workers)
             {
-                if (worker.CvWorker.ProfessionKind == profession)
+                foreach (var worker in workers.CvWorker)
                 {
-                    worker.showInfo();
-                    worker.CvWorker.showInfo();
+
+                    if (worker.ProfessionKind == profession)
+                    {
+                        workers.showInfo();
+                        worker.showInfo();
+                    }
                 }
             }
             Console.Write("1 - invited\n2 - to go back");
@@ -631,14 +620,17 @@ namespace Boss.Az
             {
                 Console.WriteLine("enter Id of cv");
                 int IdPosting = int.Parse(Console.ReadLine());
-                foreach (var worker in Database.Workers)
+                foreach (var workers in Database.Workers)
                 {
-                    if (worker.CvWorker.Id == IdPosting)
+                    foreach (var worker in workers.CvWorker)
                     {
-                        worker.Notfications.Add(new Notfication("invited", ById, worker.Id));
-                        var JsonForm = JsonSerializer.Serialize(worker.Notfications[worker.Notfications.Count - 1]);
-                        File.AppendAllText("NotficationsWorker.json", JsonForm); return;
-                        FillData();
+                        if (worker.Id == IdPosting)
+                        {
+                            workers.Notfications.Add(new Notfication("invited", ById, worker.Id));
+                            var JsonForm = JsonSerializer.Serialize(Database.Workers);
+                            File.AppendAllText("Workers.json", JsonForm);
+                            FillData();
+                        }
                     }
                 }
             }
