@@ -13,7 +13,7 @@ namespace Boss.Az
     {
         public CvWorker()
         {
-            Id = StaticId++ ;
+            Id = ++StaticId;
             Birthdate = default;
             Gender = default;
             MaritalStatus = default;
@@ -21,17 +21,7 @@ namespace Boss.Az
             ProfessionKind = default;
             WantsAmount = default;
         }
-        public CvWorker( DateTime birthdate,
-            int gender, int maritalStatus, int workExperince, string professionKind, int wantsAmount)
-        {
-            Id = StaticId++;
-            Birthdate = birthdate;
-            Gender = gender;
-            MaritalStatus = maritalStatus;
-            WorkExperince = workExperince;
-            ProfessionKind = professionKind;
-            WantsAmount = wantsAmount;
-        }
+      
         public void showInfo()
         {
             Console.WriteLine("Id: " + Id);
@@ -44,7 +34,7 @@ namespace Boss.Az
             Console.WriteLine();
         }
 
-        public static int StaticId { get; set; } = 1;
+        public static int StaticId { get; set; }
         public int Id { get; set; }
         public DateTime Birthdate { get; set; }
         public int Gender { get; set; }

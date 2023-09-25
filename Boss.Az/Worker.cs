@@ -13,7 +13,7 @@ namespace Boss.Az
 {
     internal class Worker
     {
-        public static int StaticId { get; set; } = 1;
+        public static int StaticId { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
@@ -30,7 +30,7 @@ namespace Boss.Az
         {
             CvWorker = new List<CvWorker>();
             Notfications = new List<Notfication>();
-            Id = StaticId++;
+            Id = ++StaticId;
             Name = default;
             Surname = default;
             Gmail = default;
@@ -39,7 +39,7 @@ namespace Boss.Az
 
         public Worker(int id, string name, string surname, string gmail, string paswword)
         {
-            Id = StaticId++;
+            Id = ++StaticId;
             Name = name;
             Surname = surname;
             Gmail = gmail;

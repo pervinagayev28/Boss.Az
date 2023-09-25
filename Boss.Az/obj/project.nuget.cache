@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "uH1PaLBQ4xTL1/Hd/adjQdwjjZsO/Xan4frRFGKU8uVR5ZX6ITBwOS2Z1t5K+YBjs56hoZbwFQQm+qzsY+QTVQ==",
+  "dgSpecHash": "Ef6G7s5+lhFPYNDCb8XXyAHdo95JqdVBSwfU2M759KlwQa7jRfs/srbIthaeV3ly+I3uJN51B97CZBLJrXgfFg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Agaye_jz58\\Desktop\\Boss.Az\\Boss.Az\\Boss.Az.csproj",
+  "projectFilePath": "C:\\Users\\user\\Desktop\\Boss.Az\\Boss.Az\\Boss.Az.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Agaye_jz58\\.nuget\\packages\\newtonsoft.json\\6.0.8\\newtonsoft.json.6.0.8.nupkg.sha512"
+    "C:\\Users\\user\\.nuget\\packages\\newtonsoft.json\\6.0.8\\newtonsoft.json.6.0.8.nupkg.sha512"
   ],
   "logs": [
     {

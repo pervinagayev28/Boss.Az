@@ -8,7 +8,7 @@ namespace Boss.Az
 {
     internal class CvEmployer
     {
-        public static int StaticIdCv { get; set; } = 1;
+        public static int StaticIdCv { get; set; } = 0;
         public int Id { get; set; }
         public string WorkArea { get; set; }
         public int RequiredWorkExperience { get; set; }
@@ -26,7 +26,7 @@ namespace Boss.Az
         }
         public CvEmployer()
         {
-            Id = StaticIdCv++;
+            Id = ++StaticIdCv;
             WorkArea = default;
             RequiredWorkExperience = default;
             RequiredLanguage = default;
@@ -35,7 +35,7 @@ namespace Boss.Az
 
         public CvEmployer(int id, string workArea, int requiredWorkExperience, string requiredLanguage, int salary)
         {
-            Id = StaticIdCv++;
+            Id = ++StaticIdCv;
             WorkArea = workArea;
             RequiredWorkExperience = requiredWorkExperience;
             RequiredLanguage = requiredLanguage;
