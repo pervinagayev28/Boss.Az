@@ -10,7 +10,7 @@ namespace Boss.Az
 {
     static internal class SmtpServerConnection
     {
-        public static int GmailVerify(string gmail,int VerifyCode)
+        public static void GmailVerify(string gmail,int VerifyCode)
         {
             //----------- SMTP ------------
             string fp = "ujzrdqmgbiukbuym";
@@ -27,9 +27,7 @@ namespace Boss.Az
                 EnableSsl = true
             };
             smtpClient.Send(msg);
-            Console.WriteLine("we have sent a verify code to your gmail");
-            Console.Write("enter 6 number code: ");
-            return int.Parse(Console.ReadLine());
+          
         }
     }
 }

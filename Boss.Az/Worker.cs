@@ -25,10 +25,10 @@ namespace Boss.Az
             Console.WriteLine($"Surname: {Surname}");
         }
         public List<Notfication> Notfications { get; set; }
-        public CvWorker CvWorker { get; set; }
+        public List<CvWorker> CvWorker { get; set; }
         public Worker()
         {
-            CvWorker = new CvWorker();
+            CvWorker = new List<CvWorker>();
             Notfications = new List<Notfication>();
             Id = StaticId++;
             Name = default;

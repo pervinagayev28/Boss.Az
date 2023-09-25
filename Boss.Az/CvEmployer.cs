@@ -8,24 +8,25 @@ namespace Boss.Az
 {
     internal class CvEmployer
     {
+        public static int StaticIdCv { get; set; } = 1;
         public int Id { get; set; }
-        public string  WorkArea { get; set; }
+        public string WorkArea { get; set; }
         public int RequiredWorkExperience { get; set; }
         public string RequiredLanguage { get; set; }
         public int Salary { get; set; }
         public void ShowInfo()
         {
-            Console.WriteLine("Id: "+Id);
-            Console.WriteLine("work area: "+WorkArea);
-            Console.WriteLine("work experince: "+RequiredWorkExperience);
-            Console.WriteLine("Required Language: "+RequiredLanguage);
-            Console.WriteLine("Salary: "+Salary);
+            Console.WriteLine("Id: " + Id);
+            Console.WriteLine("work area: " + WorkArea);
+            Console.WriteLine("work experince: " + RequiredWorkExperience);
+            Console.WriteLine("Required Language: " + RequiredLanguage);
+            Console.WriteLine("Salary: " + Salary);
             Console.WriteLine();
 
         }
         public CvEmployer()
         {
-            Id = Employer.StaticIdCv++;
+            Id = StaticIdCv++;
             WorkArea = default;
             RequiredWorkExperience = default;
             RequiredLanguage = default;
@@ -34,7 +35,7 @@ namespace Boss.Az
 
         public CvEmployer(int id, string workArea, int requiredWorkExperience, string requiredLanguage, int salary)
         {
-            Id = Employer.StaticIdCv++ ;
+            Id = StaticIdCv++;
             WorkArea = workArea;
             RequiredWorkExperience = requiredWorkExperience;
             RequiredLanguage = requiredLanguage;

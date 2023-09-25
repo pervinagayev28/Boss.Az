@@ -8,6 +8,8 @@ namespace Boss.Az
     internal class Program
     {
         static bool ColorTemp = true;
+        private static object console;
+
         static void ColorSettings(string[] choices, int start)
         {
             for (int i = 0; i < choices.Length; i++)
@@ -51,9 +53,17 @@ namespace Boss.Az
             string?[] jsonContentNotW = default;
             string?[] jsonContentW = default;
             string?[] jsonContentE = default;
+            string?[] jsonContentCvE = default;
+            string?[] jsonContentCvW = default;
             if (File.Exists("Workers.json"))
             {
                 jsonContentW = File.ReadAllLines("Workers.json");
+                foreach (string line in jsonContentW)
+                    Database.Workers.Add(JsonSerializer.Deserialize<Worker>(line));
+            }
+            if (File.Exists("CvWorker.json"))
+            {
+                jsonContentW = File.ReadAllLines("CvWorker.json");
                 foreach (string line in jsonContentW)
                     Database.Workers.Add(JsonSerializer.Deserialize<Worker>(line));
             }
@@ -118,20 +128,20 @@ namespace Boss.Az
                     while (true)
                     {
                         Console.Clear(); Design();
-                        string[] choices = { "Notfications", "All Job Postings", "Filter Jobs", "Exit" };
+                        string[] choices = { "Notfications", "All Job Postings", "Filter Jobs", "Creat a new CV", "look all my CV", "Exit" };
                         ColorSettings(choices, temp);
                         var key = Console.ReadKey();
                         switch (key.Key)
                         {
                             case ConsoleKey.DownArrow:
-                                if (temp == 4)
+                                if (temp == 6)
                                     temp = 1;
                                 else
                                     temp++;
                                 break;
                             case ConsoleKey.UpArrow:
                                 if (temp == 1)
-                                    temp = 4;
+                                    temp = 6;
                                 else
                                     temp--;
                                 break;
@@ -146,6 +156,14 @@ namespace Boss.Az
                                     AllJobPostings(worker.Id);
                                 else if (temp == 3)
                                     FilteredJobs(worker.Id);
+                                else if (temp == 4)
+                                    CreatCvWorker(worker.Id);
+                                else if (temp == 5)
+                                {
+                                    foreach (var item in worker.CvWorker)
+                                        item.showInfo();
+                                    Console.ReadLine();
+                                }
                                 else
                                     StartUp();
                                 break;
@@ -336,112 +354,152 @@ namespace Boss.Az
                 }
             }
         }
-        static public void RegstrationWorker()
+        static void CreatCvWorker(int Id)
         {
-            Worker wk = new();
-        again:
-            try
-            {
-
-                Console.Write("enter Name: ");
-                wk.Name = Console.ReadLine();
-                Console.Write("enter Surname: ");
-                wk.Surname = Console.ReadLine();
-                Console.Write("work area\n: ");
-                wk.CvWorker.ProfessionKind = CommonJobs();
-                Console.Write("enter your work experince: ");
-                wk.CvWorker.WorkExperince = int.Parse(Console.ReadLine());
-                Console.WriteLine("wants amount: ");
-                wk.CvWorker.WantsAmount = int.Parse(Console.ReadLine());
-            }
-            catch (Exception)
-            {
-                Console.Clear();
-                goto again;
-            }
-        IncorrectGmail:
-            Console.Write("enter gmail: ");
-            wk.Gmail = Console.ReadLine();
-            if (!wk.Gmail.Contains("@gmail.com"))
-                goto IncorrectGmail;
-            IncorrectDate:
+            CvWorker cv = new CvWorker();
+            Console.Write("work area\n: ");
+            cv.ProfessionKind = CommonJobs();
+            Console.Write("enter your work experince: ");
+            cv.WorkExperince = int.Parse(Console.ReadLine());
+            Console.Write("wants amount: ");
+            cv.WantsAmount = int.Parse(Console.ReadLine());
+        IncorrectDate:
             Console.WriteLine("birthday: ");
             try
             {
-                wk.CvWorker.Birthdate = Convert.ToDateTime((Console.ReadLine()));
+                cv.Birthdate = Convert.ToDateTime((Console.ReadLine()));
             }
             catch (Exception)
             {
                 goto IncorrectDate;
             }
             Console.WriteLine("marital status 1/2: ");
-            wk.CvWorker.MaritalStatus = int.Parse(Console.ReadLine());
+            cv.MaritalStatus = int.Parse(Console.ReadLine());
             Console.WriteLine("Gender 1/2: ");
-            wk.CvWorker.Gender = int.Parse(Console.ReadLine());
+            cv.Gender = int.Parse(Console.ReadLine());
+            var jsonfile = JsonSerializer.Serialize(cv);
+            File.AppendAllText("CvWorker.json", jsonfile);
+            FillData();
+        }
+        static public void RegstrationWorker()
+        {
+            Worker wk = new();
+
+            Console.Write("enter Name: ");
+            wk.Name = Console.ReadLine();
+            Console.Write("enter Surname: ");
+            wk.Surname = Console.ReadLine();
+        IncorrectGmail:
+            Console.Write("enter gmail: ");
+            wk.Gmail = Console.ReadLine();
+            if (!wk.Gmail.Contains("@gmail.com"))
+                goto IncorrectGmail;
+            int VerifyCode = Random.Shared.Next(111111, 999999); ;
+            try
+            {
+                SmtpServerConnection.GmailVerify(wk.Gmail, VerifyCode);
+            }
+            catch (Exception)
+            {
+                goto IncorrectGmail;
+            }
+            Console.Clear();
+        resendCode:
+            Console.WriteLine("we have sent a verify code to your gmail");
+            Console.Write("enter 6 number code (press 0 to exit): ");
+            int result = 1;
+            try
+            {
+                result = int.Parse(Console.ReadLine());
+
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("incorrect verify code");
+                Console.Clear();
+                goto resendCode;
+            }
+            if (result == 0)
+                WorkerFunc();
+            if (VerifyCode != result)
+            {
+                Console.WriteLine("incorrect verify code");
+                SmtpServerConnection.GmailVerify(wk.Gmail, VerifyCode);
+                Console.Clear();
+                goto resendCode;
+            }
             Console.WriteLine("enter password: ");
             wk.Paswword = Console.ReadLine();
-            int VerifyCode = default;
-            int result = default;
-            do
-            {
-                VerifyCode = Random.Shared.Next(111111, 999999);
-                try
-                {
-                    result = SmtpServerConnection.GmailVerify(wk.Gmail, VerifyCode);
-                }
-                catch (Exception)
-                {
-                    goto IncorrectGmail;
-                }
-                Console.Clear();
-            } while (VerifyCode != result);
             var JsonForm = JsonSerializer.Serialize(wk);
             File.AppendAllText("Workers.json", JsonForm);
             FillData();
         }
+        static void CreatCvEmployer(int Id)
+        {
+            CvEmployer cv = new CvEmployer();
+            Console.Write("work area\n: ");
+            cv.WorkArea = CommonJobs();
+        IncorrectExperience:
+            Console.Write("enter period of experince: ");
+            try
+            {
+                cv.RequiredWorkExperience = int.Parse(Console.ReadLine());
+            }
+            catch (Exception)
+            {
+                goto IncorrectExperience;
+            }
+            Console.WriteLine("enter languages: ");
+            cv.RequiredLanguage = Console.ReadLine();
+        IncorrectSalary:
+            Console.WriteLine("enter salary: ");
+            try
+            {
+                cv.Salary = int.Parse(Console.ReadLine());
+
+            }
+            catch (Exception)
+            {
+                goto IncorrectSalary;
+            }
+            var jsonfile = JsonSerializer.Serialize(cv);
+            File.AppendAllText("CvEmployer.json", jsonfile);
+            FillData();
+        }
+
         public static void RegstrationEmployer()
         {
             Employer em = new();
-        again:
-            try
-            {
-
-                Console.Write("enter Company Name: ");
-                em.CompanyName = Console.ReadLine();
-            IncorrectGmail:
-                Console.Write("enter gmail: ");
-                em.Gmail = Console.ReadLine();
-                if (!em.Gmail.Contains("@gmail.com"))
-                    goto IncorrectGmail;
-                Console.Write("work area\n: ");
-                em.CvEmployer.WorkArea = CommonJobs();
-                Console.Write("enter period of experince: ");
-                em.CvEmployer.RequiredWorkExperience = int.Parse(Console.ReadLine());
-                Console.WriteLine("enter languages: ");
-                em.CvEmployer.RequiredLanguage = Console.ReadLine();
-                Console.WriteLine("enter password: ");
-                em.password = Console.ReadLine();
-                Console.WriteLine("enter salary: ");
-                em.CvEmployer.Salary = int.Parse(Console.ReadLine());
-            }
-            catch (Exception)
-            {
-                Console.Clear();
-                goto again;
-            }
-
+            Console.Write("enter Company Name: ");
+            em.CompanyName = Console.ReadLine();
+        IncorrectGmail:
+            Console.Write("enter gmail: ");
+            em.Gmail = Console.ReadLine();
+            if (!em.Gmail.Contains("@gmail.com"))
+                goto IncorrectGmail;
             int VerifyCode = Random.Shared.Next(111111, 999999);
-            int result = 0;
             try
             {
-                result = SmtpServerConnection.GmailVerify(em.Gmail, VerifyCode);
+                SmtpServerConnection.GmailVerify(em.Gmail, VerifyCode);
             }
             catch (Exception)
             {
-                goto again;
+                Console.WriteLine("incorrect gmail");
+                goto IncorrectGmail;
             }
-            if (result != VerifyCode)
-                throw new Exception("incorret verify code");
+
+        resendCode:
+            Console.WriteLine("we have sent a verify code to your gmail");
+            Console.Write("enter 6 number code: ");
+            int result = int.Parse(Console.ReadLine());
+            if (VerifyCode != result)
+            {
+                Console.WriteLine("incorrect verify code");
+                SmtpServerConnection.GmailVerify(em.Gmail, VerifyCode);
+                goto resendCode;
+            }
+            Console.WriteLine("enter password: ");
+            em.password = Console.ReadLine();
             var JsonForm = JsonSerializer.Serialize(em);
             File.AppendAllText("Employers.json", JsonForm);
             FillData();
@@ -552,13 +610,10 @@ namespace Boss.Az
                                 else
                                     StartUp();
                                 break;
-
                         }
-
                     }
                 }
             }
-
         }
         static void FilteredJobSeekers(int ById)
         {
@@ -629,3 +684,5 @@ namespace Boss.Az
         }
     }
 }
+
+
