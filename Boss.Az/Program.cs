@@ -127,7 +127,7 @@ namespace Boss.Az
                                 {
                                     foreach (var item in worker.CvWorker)
                                         item.showInfo();
-                                    Console.ReadLine();
+                                    Console.ReadKey();
                                 }
                                 else
                                     StartUp();
@@ -246,7 +246,7 @@ namespace Boss.Az
                                     }
                                 }
                             }
-                            Console.ReadLine();
+                            Console.ReadKey();
                         }
                         else if (start == 2)
                         {
@@ -262,7 +262,7 @@ namespace Boss.Az
                                     }
                                 }
                             }
-                            Console.ReadLine();
+                            Console.ReadKey();
                         }
                         else
                             StartUp();
@@ -627,7 +627,7 @@ namespace Boss.Az
                                     {
                                         foreach (var notfic in em.Notfications)
                                             notfic.ShowNotfics(2);
-                                        Console.ReadLine();
+                                        Console.ReadKey();
                                     }
                                 }
                                 else if (temp == 2)
@@ -643,7 +643,7 @@ namespace Boss.Az
                                     {
                                         foreach (var cv in em.CvEmployer)
                                             cv.ShowInfo();
-                                        Console.ReadLine();
+                                        Console.ReadKey();
                                     }
                                 }
                                 else
